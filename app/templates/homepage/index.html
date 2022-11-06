@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- JQUERY -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+
+    <!-- CHARTJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+    
+    <title>{{title}}</title>
+    
+</head>
+<body>
+    
+    {% include 'navbar/index.html'   %}
+
+    <div class="container-fluid">
+
+        <div class="row">
+            <h1 style="white-space: nowrap;">Fermentadores</h1>
+
+            <div class="col-sm-6 col-xl-4 text-center" style="white-space: nowrap;">
+                <div class="list-group mt-3" style="overflow-y: scroll; max-height: calc( 100vh - 190px )">
+                    {% for item in range(5) %}
+                        <button type="button" class="list-group-item list-group-item-action" value="{{item+1}}">Fermentador #{{item+1}}</button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-8">
+                <div class="card mb-3 mt-3">
+                    <div class="card-body">
+                        <canvas id="linechart" style="width: 100%"></canvas>
+
+                        <script>
+                            $(document).ready(function () {
+                                
+                                var labels;
+                                var temp;
+                                var ph;
+                                let Mychart;
+
+                                generateChart();
+
+                                function getDataChart(index, mychart){
+                                    $.ajax({
+                                        type: "POST",
+                                        async: false,
+                                        dataType: "json",
+                                        data: { index: index },
+                                        url: "/get/data",
+                                        success: function (data) {
+                                            labels = data[0];
+                                            temp = data[1];
+                                            ph = data[2];
+                                        }
+                                    });
+                                    mychart.destroy();
+                                    generateChart()
+                                }
+                                
+                                function generateChart(){
+                                    var ctx = document.getElementById("linechart").getContext("2d");
+                                    var chart = new Chart(ctx, {
+                                        type: 'line',
+                                        data: {
+                                            labels: labels,
+                                            datasets: [
+                                                {
+                                                    label: 'Temperatura',
+                                                    data: temp,
+                                                    fill: false,
+                                                    borderColor: "rgb(196, 101, 27)",
+                                                    lineTension: 0.1,
+                                                },
+                                                {
+                                                    label: 'PH',
+                                                    data: ph,
+                                                    fill: false,
+                                                    borderColor: "rgb(98, 75, 192)",
+                                                    lineTension: 0.1,
+                                                }
+                                            ]
+                                        },
+                                        options: {
+                                            responsive: false,
+                                        }
+                                    });
+                                    Mychart = chart;
+                                }
+                                
+                                $('.list-group-item-action').on('click', function () {
+                                    // generateChart();
+                                    getDataChart($(this).val(), Mychart);
+                                });
+                            });
+                        </script>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
