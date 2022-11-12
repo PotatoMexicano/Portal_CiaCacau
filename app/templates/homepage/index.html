@@ -34,18 +34,27 @@
 
             <div class="col-sm-6 col-xl-8">
                 <div class="card mb-3 mt-3">
-                    <div class="card-body">
-                        <canvas id="linechart" style="width: 100%"></canvas>
+                    <div class="card-body" id="chart-container">
 
+                        <div class="text-center">
+                            <p class="h2" id="nome_clone">
+                                Olá Mundo
+                            </p>
+                        </div>
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Data</span>
+                            <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="2022-11-12">
+                        </div>
+                        
                         <script>
                             $(document).ready(function () {
                                 
                                 var labels;
                                 var temp;
                                 var ph;
+                                var brix;
                                 let Mychart;
 
-                                generateChart();
 
                                 function getDataChart(index, mychart){
                                     $.ajax({
@@ -58,13 +67,19 @@
                                             labels = data[0];
                                             temp = data[1];
                                             ph = data[2];
+                                            brix = data[3];
+                                            clone = data[4];
                                         }
                                     });
-                                    mychart.destroy();
                                     generateChart()
                                 }
                                 
                                 function generateChart(){
+                                    $('#linechart').remove();
+                                    $('#chart-container').append('<canvas id="linechart" style="width: 100%; display: block; box-sizing: border-box;"></canvas>')
+                                    $('#nome_clone').text(clone);
+
+
                                     var ctx = document.getElementById("linechart").getContext("2d");
                                     var chart = new Chart(ctx, {
                                         type: 'line',
@@ -84,6 +99,13 @@
                                                     fill: false,
                                                     borderColor: "rgb(98, 75, 192)",
                                                     lineTension: 0.1,
+                                                },
+                                                {
+                                                    label: 'BRIX',
+                                                    data: brix,
+                                                    fill: false,
+                                                    borderColor: "rgba(255, 40, 79, 0.79)",
+                                                    lineTension: 0.1,
                                                 }
                                             ]
                                         },
@@ -95,7 +117,6 @@
                                 }
                                 
                                 $('.list-group-item-action').on('click', function () {
-                                    // generateChart();
                                     getDataChart($(this).val(), Mychart);
                                 });
                             });

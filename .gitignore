@@ -1,2 +1,4 @@
 *.xlsx
 Pipfile
+/*venv
+__pycache__
