@@ -25,11 +25,7 @@
             <h1 style="white-space: nowrap;">Fermentadores</h1>
 
             <div class="col-sm-6 col-xl-4 text-center" style="white-space: nowrap;">
-                <div class="list-group mt-3" style="overflow-y: scroll; max-height: calc( 100vh - 190px )">
-                    {% for item in range(5) %}
-                        <button type="button" class="list-group-item list-group-item-action" value="{{item+1}}">Fermentador #{{item+1}}</button>
-                    {% endfor %}
-                </div>
+                <div id="listaFermentadores" class="list-group mt-3" style="overflow-y: scroll; max-height: calc( 100vh - 190px )"></div>
             </div>
 
             <div class="col-sm-6 col-xl-8">
@@ -41,84 +37,101 @@
                                 Olá Mundo
                             </p>
                         </div>
+
+                        <style>
+                            tr:nth-child(even){background-color: #B0C4DE;}
+                            tr:nth-child(odd){background-color: #ffffff;}
+                        </style>
+                        <table>
+                            <tr>
+                                <th>01</th>
+                                <th>02</th>
+                            </tr>
+                            <tr>
+                                <td>Joao</td>
+                                <td>38546</td>
+                            </tr>
+                        </table>
+                        
+                        <div class="input-group input-group-sm mb-3">
+                            <label class="input-group-text" for="ciclopicker">Ciclo</label>
+                            <select class="form-select" id="ciclopicker">
+                                <option selected>Ciclo...</option>
+                            </select>
+                        </div>
+                        
                         <div class="input-group input-group-sm mb-3">
                             <span class="input-group-text" id="inputGroup-sizing-sm">Data</span>
-                            <input type="date" class="form-control" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" value="2022-11-12">
+                            <input type="date" class="form-control" id="datapicker">
                         </div>
                         
                         <script>
                             $(document).ready(function () {
-                                
+
+                                listarFermentadores()
+
                                 var labels;
                                 var temp;
                                 var ph;
                                 var brix;
                                 let Mychart;
 
-
-                                function getDataChart(index, mychart){
-                                    $.ajax({
-                                        type: "POST",
-                                        async: false,
-                                        dataType: "json",
-                                        data: { index: index },
-                                        url: "/get/data",
-                                        success: function (data) {
-                                            labels = data[0];
-                                            temp = data[1];
-                                            ph = data[2];
-                                            brix = data[3];
-                                            clone = data[4];
-                                        }
-                                    });
-                                    generateChart()
-                                }
-                                
-                                function generateChart(){
-                                    $('#linechart').remove();
-                                    $('#chart-container').append('<canvas id="linechart" style="width: 100%; display: block; box-sizing: border-box;"></canvas>')
-                                    $('#nome_clone').text(clone);
-
-
-                                    var ctx = document.getElementById("linechart").getContext("2d");
-                                    var chart = new Chart(ctx, {
-                                        type: 'line',
-                                        data: {
-                                            labels: labels,
-                                            datasets: [
-                                                {
-                                                    label: 'Temperatura',
-                                                    data: temp,
-                                                    fill: false,
-                                                    borderColor: "rgb(196, 101, 27)",
-                                                    lineTension: 0.1,
-                                                },
-                                                {
-                                                    label: 'PH',
-                                                    data: ph,
-                                                    fill: false,
-                                                    borderColor: "rgb(98, 75, 192)",
-                                                    lineTension: 0.1,
-                                                },
-                                                {
-                                                    label: 'BRIX',
-                                                    data: brix,
-                                                    fill: false,
-                                                    borderColor: "rgba(255, 40, 79, 0.79)",
-                                                    lineTension: 0.1,
-                                                }
-                                            ]
-                                        },
-                                        options: {
-                                            responsive: false,
-                                        }
-                                    });
-                                    Mychart = chart;
-                                }
-                                
-                                $('.list-group-item-action').on('click', function () {
-                                    getDataChart($(this).val(), Mychart);
+                                $("#listaFermentadores").on("click", ".list-group-item", function(){
+                                    $('#ciclopicker').empty();
+                                    listarCiclos($(this).val());
                                 });
+
+                                $('#ciclopicker').on('change', function(){
+                                    console.log( $(this) );
+                                    // listarHistorico($('#ciclopicker').val())
+                                });
+
+                                function listarHistorico(id_ciclo){
+                                    $.ajax({
+                                       type: 'POST',
+                                       url: '/get/all/historico/ciclo/'+id_ciclo,
+                                       dataType: 'JSON',
+                                       async: false,
+                                       success: function(data){
+                                        console.log(data);
+                                       }
+                                    });
+                                }
+
+                                function listarCiclos(id_fermentador){
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/get/all/ciclo/fermentador/'+id_fermentador,
+                                        dataType: 'JSON',
+                                        async: false,
+                                        success: function(data){
+                                            if(data.length > 0){
+                                                $('#ciclopicker').attr('disabled',false)
+                                                $.each(data, function(index, data){
+                                                    $('#ciclopicker').append('<option id='+data.id+'>'+data.nome_ciclo+'</option>')
+                                                });
+                                            }else{
+                                                $('#ciclopicker').attr('disabled','disabled')
+                                                $('#ciclopicker').append("<option selected disabled>Não há ciclo</option>")
+                                            }
+                                        }
+                                    })
+                                }
+
+                                function listarFermentadores(){
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '/get/all/fermentador',
+                                        dataType: 'JSON',
+                                        async: false,
+                                        success: function(data){
+                                            $.each(data, function(index, data){
+                                                $('#listaFermentadores').append('<button type="button" class="list-group-item list-group-item-action" value='+data.id+'>'+data.fermentador+'</button>')
+                                            })
+                                        }
+                                    })
+                                }
+
                             });
                         </script>
                     </div>
