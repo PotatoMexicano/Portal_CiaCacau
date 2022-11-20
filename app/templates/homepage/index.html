@@ -1,144 +1,230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- JQUERY -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+	<!-- JQUERY -->
+	<script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 
-    <!-- CHARTJS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+	<!-- CHARTJS -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 
-    
-    <title>{{title}}</title>
-    
+	
+	<title>{{title}}</title>
+	
 </head>
 <body>
-    
-    {% include 'navbar/index.html'   %}
+	
+	{% include 'navbar/index.html'   %}
 
-    <div class="container-fluid">
+	<div class="container-fluid">
 
-        <div class="row">
-            <h1 style="white-space: nowrap;">Fermentadores</h1>
+		<div class="row">
+			<h1 style="white-space: nowrap;">Fermentadores</h1>
 
-            <div class="col-sm-6 col-xl-4 text-center" style="white-space: nowrap;">
-                <div id="listaFermentadores" class="list-group mt-3" style="overflow-y: scroll; max-height: calc( 100vh - 190px )"></div>
-            </div>
+			<div class="col-sm-12 col-md-4 col-xl-4 text-center" style="white-space: nowrap;">
+				<div id="listaFermentadores" class="list-group mt-3" style="overflow-y: scroll; max-height: calc( 100vh - 190px )"></div>
+			</div>
 
-            <div class="col-sm-6 col-xl-8">
-                <div class="card mb-3 mt-3">
-                    <div class="card-body" id="chart-container">
+			<div class="col-sm-12 col-md-8 col-xl-8">
+				<div class="card mb-3 mt-3">
+					<div class="card-body" id="chart-container">
 
-                        <div class="text-center">
-                            <p class="h2" id="nome_clone">
-                                Olá Mundo
-                            </p>
-                        </div>
+						<div class="text-center">
+							<p class="h2" id="nome_clone">
+								Olá Mundo
+							</p>
+						</div>
+						
+						<div class="input-group input-group-sm mb-3">
+							<label class="input-group-text" for="ciclopicker">Ciclo</label>
+							<select class="form-select" id="ciclopicker">
+								<option selected>Ciclo...</option>
+							</select>
+						</div>
+						
+						<div class="input-group input-group-sm mb-3">
+							<span class="input-group-text" id="inputGroup-sizing-sm">Data</span>
+							<input type="date" class="form-control" id="datapicker">
+						</div>
 
-                        <style>
-                            tr:nth-child(even){background-color: #B0C4DE;}
-                            tr:nth-child(odd){background-color: #ffffff;}
-                        </style>
-                        <table>
-                            <tr>
-                                <th>01</th>
-                                <th>02</th>
-                            </tr>
-                            <tr>
-                                <td>Joao</td>
-                                <td>38546</td>
-                            </tr>
-                        </table>
-                        
-                        <div class="input-group input-group-sm mb-3">
-                            <label class="input-group-text" for="ciclopicker">Ciclo</label>
-                            <select class="form-select" id="ciclopicker">
-                                <option selected>Ciclo...</option>
-                            </select>
-                        </div>
-                        
-                        <div class="input-group input-group-sm mb-3">
-                            <span class="input-group-text" id="inputGroup-sizing-sm">Data</span>
-                            <input type="date" class="form-control" id="datapicker">
-                        </div>
-                        
-                        <script>
-                            $(document).ready(function () {
+						<div id="container-canvas-chart">
+							<canvas id="chartCanvas" style="height: 400px; width: 100%;"></canvas>
+						</div>
+						
+						<script>
+							$(document).ready(function () {
+						
 
-                                listarFermentadores()
+								listarFermentadores()
 
-                                var labels;
-                                var temp;
-                                var ph;
-                                var brix;
-                                let Mychart;
+								var labels;
+								var temp;
+								var ph;
+								var brix;
+								let Mychart;
 
-                                $("#listaFermentadores").on("click", ".list-group-item", function(){
-                                    $('#ciclopicker').empty();
-                                    listarCiclos($(this).val());
-                                });
+								$("#listaFermentadores").on("click", ".list-group-item", function(){
+									$('#ciclopicker').empty();
+									listarCiclos($(this).val());
+									$("#nome_clone").text($(this).text())
+								});
 
-                                $('#ciclopicker').on('change', function(){
-                                    console.log( $(this) );
-                                    // listarHistorico($('#ciclopicker').val())
-                                });
+								$('#ciclopicker').on('change', function(){
+									$('#datapicker').val('');
+									listarHistorico($('#ciclopicker').val());
+									getRangeDatePicker($('#ciclopicker').val());
+								});
 
-                                function listarHistorico(id_ciclo){
-                                    $.ajax({
-                                       type: 'POST',
-                                       url: '/get/all/historico/ciclo/'+id_ciclo,
-                                       dataType: 'JSON',
-                                       async: false,
-                                       success: function(data){
-                                        console.log(data);
-                                       }
-                                    });
-                                }
+								$('#datapicker').on('change', function(){
+									listarHistorico($('#ciclopicker').val());
+								})
 
-                                function listarCiclos(id_fermentador){
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: '/get/all/ciclo/fermentador/'+id_fermentador,
-                                        dataType: 'JSON',
-                                        async: false,
-                                        success: function(data){
-                                            if(data.length > 0){
-                                                $('#ciclopicker').attr('disabled',false)
-                                                $.each(data, function(index, data){
-                                                    $('#ciclopicker').append('<option id='+data.id+'>'+data.nome_ciclo+'</option>')
-                                                });
-                                            }else{
-                                                $('#ciclopicker').attr('disabled','disabled')
-                                                $('#ciclopicker').append("<option selected disabled>Não há ciclo</option>")
-                                            }
-                                        }
-                                    })
-                                }
+								function parseTimestamp(date){
+									date = date.split("-")
+									var newdate = new Date(date[0], date[1] - 1, date[2])
+									return newdate.getTime()
+								}
 
-                                function listarFermentadores(){
-                                    $.ajax({
-                                        type: 'POST',
-                                        url: '/get/all/fermentador',
-                                        dataType: 'JSON',
-                                        async: false,
-                                        success: function(data){
-                                            $.each(data, function(index, data){
-                                                $('#listaFermentadores').append('<button type="button" class="list-group-item list-group-item-action" value='+data.id+'>'+data.fermentador+'</button>')
-                                            })
-                                        }
-                                    })
-                                }
+								function gerarGrafico(data){
 
-                            });
-                        </script>
-                    </div>
-                </div>
+									$('#chartCanvas').remove();
 
-            </div>
-        </div>
-    </div>
+									$('#container-canvas-chart').append('<canvas id="chartCanvas" style="height: 400px; width: 100%;"></canvas>')
+
+									var id = data[0];
+									var ciclo = data[2];
+									var ph = data[1];
+									var brix = data[3];
+									var temp = data[4];
+									var datetime = data[5];
+									var formatted_datetime = [];
+
+									$.each(datetime, function(index, value){
+										formatted_datetime.push(new Date(value * 1000).toLocaleTimeString())
+									});
+
+									const ctx = document.getElementById('chartCanvas').getContext('2d');
+									const myChart = new Chart(ctx, {
+										type: 'line',
+										data: {
+											labels: formatted_datetime,
+											datasets: [{
+												backgroundColor: 'rgb(243, 92, 110)',
+												borderColor: 'rgb(243, 92, 110)',
+												label: 'Temperatura',
+												data: temp,
+												borderWidth: 3,
+												tension: 0.5,
+												fill: false
+											},
+											{
+												backgroundColor: 'rgb(104, 110, 226, 0.08)',
+												borderColor: 'rgb(104, 110, 226)',
+												label: 'Brix',
+												data: brix,
+												borderWidth: 3,
+												tension: 0.5,
+												fill: true
+											},
+											{
+												backgroundColor: 'rgb(92, 62, 132, 0.09)',
+												borderColor: 'rgb(92, 62, 132)',
+												label: 'PH',
+												data: ph,
+												borderWidth: 3,
+												tension: 0.5,
+												fill: true
+											}]
+										},
+										options: {
+											responsive: true,
+										}
+									});
+
+								}
+
+								function listarHistorico(id_ciclo){
+
+									var dataSelected = $('#datapicker').val();
+									var url;
+
+									if (dataSelected != ''){
+										var timestamp = parseInt(parseTimestamp(dataSelected))
+										url =  '/get/all/historico/ciclo/'+id_ciclo+'/'+timestamp;
+									}else{
+										url =  '/get/all/historico/ciclo/'+id_ciclo;
+									}
+
+
+
+									$.ajax({
+										type: 'POST',
+										url: url,
+										data: {dataRange: dataSelected},
+										dataType: 'JSON',
+										async: false,
+										success: function(data){
+											gerarGrafico(data)
+									   	}
+									});
+								}
+
+								function listarCiclos(id_fermentador){
+									$.ajax({
+										type: 'POST',
+										url: '/get/all/ciclo/fermentador/'+id_fermentador,
+										dataType: 'JSON',
+										async: false,
+										success: function(data){
+											if(data.length > 0){
+												$('#ciclopicker').attr('disabled',false)
+												$.each(data, function(index, data){
+													$('#ciclopicker').append('<option value='+data.id+'>'+data.nome_ciclo+'</option>')
+												});
+											}else{
+												$('#ciclopicker').attr('disabled','disabled')
+												$('#ciclopicker').append("<option selected disabled>Não há ciclo</option>")
+											}
+										}
+									})
+								}
+
+								function listarFermentadores(){
+									$.ajax({
+										type: 'POST',
+										url: '/get/all/fermentador',
+										dataType: 'JSON',
+										async: false,
+										success: function(data){
+											$.each(data, function(index, data){
+												$('#listaFermentadores').append('<button type="button" class="list-group-item list-group-item-action" value='+data.id+'>'+data.fermentador+'</button>')
+											})
+										}
+									})
+								}
+								
+								function getRangeDatePicker(id_ciclo){
+									$.ajax({
+										url: '/get/date/range/ciclo/'+id_ciclo,
+										type: 'POST',
+										dataType: 'JSON',
+										async: false,
+										success: function(data){
+											$('#datapicker').attr('min', data['min']);
+											$('#datapicker').attr('max', data['max']);
+										}
+									})
+								}
+							});
+						</script>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
 </body>
 </html>

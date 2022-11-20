@@ -30,7 +30,7 @@ class Ciclo(db.Model):
     id_fermentador = db.Column('id_fermentador', db.Integer, db.ForeignKey('fermentador.id'))
     data_inicio = db.Column('data_inicio', db.Date)
     clone = db.Column(db.String(200))
-    historicos = db.relationship('Historico', backref="ciclo")
+    historicos = db.relationship('Historico', backref="ciclo", order_by='Historico.datetime.asc()', lazy='dynamic')
 
     nome_ciclo = None
 
