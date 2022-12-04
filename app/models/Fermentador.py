@@ -23,6 +23,7 @@ class Ciclo(db.Model):
     id:int
     id_fermentador:int
     data_inicio:datetime
+    data_inicio_formatada:str
     clone:str
     nome_ciclo:str
 
@@ -33,8 +34,10 @@ class Ciclo(db.Model):
     historicos = db.relationship('Historico', backref="ciclo", order_by='Historico.datetime.asc()', lazy='dynamic')
 
     nome_ciclo = None
+    data_inicio_formatada = None
 
     def generateCicloName(self):
+        self.data_inicio_formatada = f"{self.data_inicio}"
         self.nome_ciclo = f"{self.clone}-{self.data_inicio}-MAQUINA-{self.id_fermentador}"
     
     def generate(self):

@@ -4,8 +4,8 @@ from app import app, db
 from app.models.Fermentador import Fermentador
 from app.models.Fermentador import Ciclo
 from app.models.Fermentador import Historico
-from datetime import datetime
-from sqlalchemy import func, and_
+from datetime import datetime, timedelta
+from sqlalchemy import func, and_, cast, Date
 
 # Impedir que o usuário que deslogou do sistema volte a visualizar as páginas
 def req(response:Response):
@@ -15,7 +15,7 @@ def req(response:Response):
 # Rota principal
 @app.route('/')
 def home():
-    response = make_response(render_template('./homepage/index.html', title="Olá Mundo - CACAU"))
+    response = make_response(render_template('./homepage/index.html', title="Homepage - CACAU"))
     return req(response)
 
 @app.route('/get/all/fermentador', methods=['GET','POST'])
@@ -52,9 +52,15 @@ def listAllHistorico(id_ciclo:int, timestamp:int):
     if timestamp != None:
         timestamp = int(timestamp)
         date = datetime.fromtimestamp(timestamp / 1000).strftime('%Y-%m-%d')
-        
-        historicos = single.historicos.filter(and_(func.date(Historico.datetime) >= date, func.date(Historico.datetime) <= date)).all()
+        # date = datetime.fromtimestamp(timestamp / 1000) #forSQLServer
 
+
+        # date_in =  date + timedelta(hours=0, minutes=0, seconds=0) #forSQLServer
+        # date_out = date +timedelta(hours=23, minutes=59, seconds=59) #forSQLServer
+
+        historicos = single.historicos.filter(and_(func.date(Historico.datetime) >= date, func.date(Historico.datetime) <= date)).all()
+        # historicos = single.historicos.filter(cast(Historico.datetime, Date) >= date_in).filter(cast(Historico.datetime, Date) <= date_out).all() #forSQLServer
+    
     for historico in historicos:
         historico:Historico = historico
         array_id.append(historico.id)
@@ -72,7 +78,7 @@ def listAllHistorico(id_ciclo:int, timestamp:int):
     return result
 
 @app.route('/get/date/range/ciclo/<id_ciclo>', methods=['GET','POST'])
-def getRangeHistorico(id_ciclo:int  ):
+def getRangeHistorico(id_ciclo:int):
 
     min = 0
     max = 0
@@ -84,6 +90,12 @@ def getRangeHistorico(id_ciclo:int  ):
         'min':f'{min.date()}',
         'max':f'{max.date()}'
     })
+
+@app.route('/login')
+def login():
+    response = make_response(render_template('./login/index.html', title="Login - CACAU"))
+    return req(response)
+
 
 # Inicializador do sistema
 if __name__ == '__main__':

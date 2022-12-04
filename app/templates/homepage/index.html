@@ -32,11 +32,22 @@
 				<div class="card mb-3 mt-3">
 					<div class="card-body" id="chart-container">
 
-						<div class="text-center">
-							<p class="h2" id="nome_clone">
-								Olá Mundo
-							</p>
-						</div>
+						<!-- <div class="text-center"> -->
+							<div class="row">
+								<div class="col-6">
+									<div class="text-start">
+										<p class="h2" id="nome_clone">Bananas</p>
+									</div>
+								</div>
+
+								<div class="col-6 invisible" id="container-info-button">
+									<div class="text-end">
+										<i id="info-button" class="bi bi-question-circle text-align-end" style="cursor: pointer;"></i>
+									</div>
+								</div>
+
+							</div>
+						<!-- </div> -->
 						
 						<div class="input-group input-group-sm mb-3">
 							<label class="input-group-text" for="ciclopicker">Ciclo</label>
@@ -57,7 +68,6 @@
 						<script>
 							$(document).ready(function () {
 						
-
 								listarFermentadores()
 
 								var labels;
@@ -65,6 +75,13 @@
 								var ph;
 								var brix;
 								let Mychart;
+
+								$('#info-button').on('click tap', function(){
+									Swal.fire({
+										icon: 'info',
+										html: '<b>Clone:</b> '+$('#ciclopicker option:selected').attr('_clone')+'<br><b>Data:</b> '+$('#ciclopicker option:selected').attr('_data')+'<br><b>Maquina:</b> '+$('#ciclopicker option:selected').attr('_fermentador'),
+									});
+								});
 
 								$("#listaFermentadores").on("click", ".list-group-item", function(){
 									$('#ciclopicker').empty();
@@ -82,6 +99,18 @@
 									listarHistorico($('#ciclopicker').val());
 								})
 
+								function apagarGrafico(){
+
+
+									$('#chartCanvas').remove();
+									$('#container-canvas-chart').empty();
+
+									$('#container-info-button').addClass('invisible')
+
+									$('#container-canvas-chart').append('<div style="text-align:center;"><span style="font-size:2rem">Nenhum ciclo encontrado.</span></div>');
+
+								}
+
 								function parseTimestamp(date){
 									date = date.split("-")
 									var newdate = new Date(date[0], date[1] - 1, date[2])
@@ -90,7 +119,11 @@
 
 								function gerarGrafico(data){
 
-									$('#chartCanvas').remove();
+									apagarGrafico()
+
+									$('#container-info-button').removeClass('invisible');
+
+									$('#container-canvas-chart').empty();
 
 									$('#container-canvas-chart').append('<canvas id="chartCanvas" style="height: 400px; width: 100%;"></canvas>')
 
@@ -182,13 +215,18 @@
 											if(data.length > 0){
 												$('#ciclopicker').attr('disabled',false)
 												$.each(data, function(index, data){
-													$('#ciclopicker').append('<option value='+data.id+'>'+data.nome_ciclo+'</option>')
+													$('#ciclopicker').append('<option value='+data.id+' _clone='+data.clone+' _fermentador='+data.id_fermentador+' _data='+data.data_inicio_formatada+'>'+data.nome_ciclo+'</option>')
 												});
 											}else{
 												$('#ciclopicker').attr('disabled','disabled')
 												$('#ciclopicker').append("<option selected disabled>Não há ciclo</option>")
+												apagarGrafico()
 											}
-										}
+
+											$('#datapicker').val('');
+											listarHistorico($('#ciclopicker').val());
+											getRangeDatePicker($('#ciclopicker').val());
+										},
 									})
 								}
 
