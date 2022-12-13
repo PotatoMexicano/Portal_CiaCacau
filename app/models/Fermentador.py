@@ -1,8 +1,27 @@
 
 from dataclasses import dataclass
 from datetime import datetime, date, time
+from flask_login import UserMixin
 
-from app import db
+from app import db, login_manager, bcrypt
+
+@login_manager.user_loader
+def get_user(user_id):
+    return Usuario.query.filter_by(id=user_id).first()
+
+@dataclass
+class Usuario(db.Model, UserMixin):
+    __tablename__ = 'usuario'
+
+    id:int
+    login:str
+
+    id = db.Column('_id', db.Integer, primary_key=True, autoincrement=True)
+    login = db.Column('login', db.String(200))
+    _password = db.Column('password', db.String(200))
+
+    def verify_password(self, pwd:str) -> bool:
+        return bcrypt.check_password_hash(self._password, pwd)
 
 @dataclass
 class Fermentador(db.Model):
@@ -14,7 +33,6 @@ class Fermentador(db.Model):
     id = db.Column('id', db.Integer, primary_key=True, autoincrement=True)
     fermentador = db.Column('fermentador', db.String(200))
     ciclos = db.relationship('Ciclo', backref="fermentador", order_by='Ciclo.data_inicio.desc()')
-
 
 @dataclass
 class Ciclo(db.Model):

@@ -1,29 +1,39 @@
 from flask import Flask
-from flask import make_response, render_template, Response, jsonify, request
+from flask import make_response, render_template, Response, jsonify, request, session, flash, redirect, url_for
 from app import app, db
 from app.models.Fermentador import Fermentador
 from app.models.Fermentador import Ciclo
 from app.models.Fermentador import Historico
+from app.models.Fermentador import Usuario
 from datetime import datetime, timedelta
 from sqlalchemy import func, and_, cast, Date
+from flask_login import login_user, login_required
 
 # Impedir que o usuário que deslogou do sistema volte a visualizar as páginas
 def req(response:Response):
     response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
     return response
 
+@app.errorhandler(401)
+def error_401(_): 
+    flash("Acesso negado", category='warning')
+    return redirect(url_for('login'))
+
 # Rota principal
 @app.route('/')
+@login_required
 def home():
     response = make_response(render_template('./homepage/index.html', title="Homepage - CACAU"))
     return req(response)
 
 @app.route('/get/all/fermentador', methods=['GET','POST'])
+@login_required
 def listAllFermentador():
     all:Fermentador = Fermentador.query.all()
     return all
 
 @app.route('/get/all/ciclo/fermentador/<id_machine>', methods=['GET','POST'])
+@login_required
 def listAllCiclos(id_machine:int):
     result = []
     single:Fermentador = Fermentador.query.filter_by(id=id_machine).first()
@@ -35,6 +45,7 @@ def listAllCiclos(id_machine:int):
 
 @app.route('/get/all/historico/ciclo/<id_ciclo>/<timestamp>', methods=['GET','POST'])
 @app.route('/get/all/historico/ciclo/<id_ciclo>', defaults={'timestamp': None}, methods=['GET','POST'])
+@login_required
 def listAllHistorico(id_ciclo:int, timestamp:int):
 
 
@@ -78,6 +89,7 @@ def listAllHistorico(id_ciclo:int, timestamp:int):
     return result
 
 @app.route('/get/date/range/ciclo/<id_ciclo>', methods=['GET','POST'])
+@login_required
 def getRangeHistorico(id_ciclo:int):
 
     min = 0
@@ -91,6 +103,42 @@ def getRangeHistorico(id_ciclo:int):
         'max':f'{max.date()}'
     })
 
+@app.route('/auth/login', methods=['GET','POST'])
+def auth_login():
+
+    login = str(request.form['username'])
+    pwd = str(request.form['password'])
+
+    print(login, pwd)
+
+    usuario:Usuario = Usuario.query.filter_by(login=login).first()
+
+    resultado = None
+
+    if (usuario):
+        resultado = usuario.verify_password(pwd)
+        
+        if resultado:
+            session.clear()
+            login_user(usuario)
+
+            return jsonify({
+                'status':200,
+                'message':'Usuário autenticado'
+                }), 200
+
+        else:
+            return jsonify({
+                'status': 403,
+                'message':'Senha incorreta'
+                }), 200
+
+    else:
+        return jsonify({
+            'status':404,
+            'message':'Usuário não encontrado'
+            }), 200
+    
 @app.route('/login')
 def login():
     response = make_response(render_template('./login/index.html', title="Login - CACAU"))
