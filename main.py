@@ -7,7 +7,7 @@ from app.models.Fermentador import Historico
 from app.models.Fermentador import Usuario
 from datetime import datetime, timedelta
 from sqlalchemy import func, and_, cast, Date
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user, logout_user
 
 # Impedir que o usuário que deslogou do sistema volte a visualizar as páginas
 def req(response:Response):
