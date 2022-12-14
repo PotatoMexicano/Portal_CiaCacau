@@ -17,6 +17,7 @@
         :root{
             --bg-accent: #413122;
             --text-accent: #ead9c9;
+            --bg-secondary: #cc8b3b;
         }
         .navbar-brand > img{
             height: 70px;
@@ -35,6 +36,31 @@
             align-self: center;
         }
     </style>
+
+    <script>
+        $(document).ready(function(){
+            
+            $('#BtnExitSystem').on('click', function(){
+
+                Swal.fire({
+                    title: 'Deseja sair do sistema ?',
+                    showDenyButton: true,
+                    showCancelButton: false,
+                    confirmButtonText: 'Sim',
+                    confirmButtonColor: 'var(--bg-secondary)',
+                    denyButtonText: 'Não',
+                    denyButtonColor: 'var(--bg-accent)',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.replace('/auth/logout')
+                    } else if (result.isDenied) {
+                        console.log("Operação cancelada pelo usuário");
+                    }
+                });
+            });
+
+        });
+    </script>
 </head>
 <body>    
     <nav class="navbar">
@@ -42,6 +68,9 @@
           <a class="navbar-brand" href="{{ url_for('home' ) }}">
             <img src="{{ url_for('static' , filename='assets/cacau.svg') }}">
             Cia do Cacau 
+          </a>
+          <a class="text-decoration-none" >
+            <i class="bi bi-box-arrow-right" id="BtnExitSystem"></i>
           </a>
         </div>
       </nav>

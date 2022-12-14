@@ -103,13 +103,19 @@ def getRangeHistorico(id_ciclo:int):
         'max':f'{max.date()}'
     })
 
+@app.route('/auth/logout', methods=['GET','POST'])
+def auth_logout():
+    
+    logout_user();
+    session.clear();
+
+    return app.login_manager.unauthorized()
+
 @app.route('/auth/login', methods=['GET','POST'])
 def auth_login():
 
     login = str(request.form['username'])
     pwd = str(request.form['password'])
-
-    print(login, pwd)
 
     usuario:Usuario = Usuario.query.filter_by(login=login).first()
 
@@ -141,9 +147,8 @@ def auth_login():
     
 @app.route('/login')
 def login():
-    if (current_user.is_authenticated): 
-        print(current_user)
-        return redirect(url_for('home'))
+
+    if(current_user.is_authenticated): return redirect(url_for('home'))
 
     response = make_response(render_template('./login/index.html', title="Login - CACAU"))
     return req(response)
