@@ -18,13 +18,16 @@
 
     <script>
 
-        $(document).ready(function(){
-            $('#btnSubmit').on('click', function(){
-                
-                username = $('#inputLogin').val();
-                password = $('#inputPassword').val();
+        function authUser(){
 
-                $.ajax({
+            username = $('#inputLogin').val();
+            password = $('#inputPassword').val();
+
+            if ((!username) || (!password)){
+                console.log("Login vázio");
+                return false;
+            }
+            $.ajax({
                     type: 'POST',
                     url: '/auth/login',
                     data: {
@@ -54,7 +57,19 @@
                         }
                     }
                 })
+        }
+
+        $(document).ready(function(){
+            $('#btnSubmit').on('click', function(){
+                authUser();
             });
+
+            $('.form-control').on('keypress', function(e){
+                if(e.keyCode == 13){
+                    authUser();
+                }
+            });
+
         });
     </script>
 
