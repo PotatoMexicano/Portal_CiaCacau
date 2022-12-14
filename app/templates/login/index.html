@@ -18,13 +18,17 @@
 
     <script>
 
-        $(document).ready(function(){
-            $('#btnSubmit').on('click', function(){
-                
-                username = $('#inputLogin').val();
-                password = $('#inputPassword').val();
+        function loginUser(){
 
-                $.ajax({
+            username = $('#inputLogin').val();
+            password = $('#inputPassword').val();
+
+            if((!username) || (!password)){
+                console.log("Nenhum dado encontrado.");
+                return false;
+            }
+            
+            $.ajax({
                     type: 'POST',
                     url: '/auth/login',
                     data: {
@@ -54,6 +58,19 @@
                         }
                     }
                 })
+
+        }
+
+        $(document).ready(function(){
+            $('#btnSubmit').on('click', function(){
+                loginUser();
+            });
+
+            $('.form-control').on('keypress', function(e){
+                var key = (e.keyCode || e.which);
+                if(key == 13 || key == 3){
+                    loginUser();
+                }
             });
         });
     </script>

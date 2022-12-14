@@ -78,8 +78,9 @@
 
 								$('#info-button').on('click tap', function(){
 									Swal.fire({
-										icon: 'info',
+										icon: 'question',
 										html: '<b>Clone:</b> '+$('#ciclopicker option:selected').attr('_clone')+'<br><b>Data:</b> '+$('#ciclopicker option:selected').attr('_data')+'<br><b>Maquina:</b> '+$('#ciclopicker option:selected').attr('_fermentador'),
+										confirmButtonColor: 'var(--bg-accent)'
 									});
 								});
 

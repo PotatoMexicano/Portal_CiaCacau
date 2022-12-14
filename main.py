@@ -7,7 +7,7 @@ from app.models.Fermentador import Historico
 from app.models.Fermentador import Usuario
 from datetime import datetime, timedelta
 from sqlalchemy import func, and_, cast, Date
-from flask_login import login_user, login_required
+from flask_login import login_user, login_required, current_user
 
 # Impedir que o usuário que deslogou do sistema volte a visualizar as páginas
 def req(response:Response):
@@ -141,6 +141,10 @@ def auth_login():
     
 @app.route('/login')
 def login():
+    if (current_user.is_authenticated): 
+        print(current_user)
+        return redirect(url_for('home'))
+
     response = make_response(render_template('./login/index.html', title="Login - CACAU"))
     return req(response)
 
