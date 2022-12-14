@@ -86,7 +86,8 @@
         }
         .container-fluid > .navbar-brand{
             font-size: 2rem;
-            color: var(--text-accent);
+            /* color: var(--text-accent); */
+            color: white;
             align-self: center;
         }
         .btn-outline-brown{
@@ -98,7 +99,7 @@
         }
     </style>
 </head>
-<body>
+<body style="background-color: var(--text-accent); min-width: 300px;">
 
     <div class="container-fluid">
         <div class="row" style="background-color: var(--bg-accent);height: 58px;">
@@ -110,9 +111,9 @@
         </div>
     </div>
 
-    <div class="container-fluid" style="display: flex; justify-content: center">
+    <div class="container-fluid" style="display: flex; justify-content: center;">
         
-        <div class="card mt-5 shadow-lg p-3 mb-5 bg-body rounded" style="width: 25rem">
+        <div class="card mt-5 mb-5 shadow-lg p-3 bg-body rounded" style="width: 25rem;">
 
             <div class="card-body">
 
@@ -122,12 +123,12 @@
 
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="labelLogin">Login</span>
-                        <input type="text" class="form-control" placeholder="Usuário" id="inputLogin">
+                        <input type="text" class="form-control" placeholder="Usuário" id="inputLogin" required>
                     </div>
                     
                     <div class="input-group mb-3">
                         <span class="input-group-text" id="labelPassword">Senha</span>
-                        <input type="password" class="form-control" placeholder="Senha" id="inputPassword">
+                        <input type="password" class="form-control" placeholder="Senha" id="inputPassword" required>
                     </div>
 
                     <div class="row">

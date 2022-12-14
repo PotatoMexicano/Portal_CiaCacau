@@ -15,7 +15,8 @@ def req(response:Response):
     return response
 
 @app.errorhandler(401)
-def error_401(_): 
+def error_401(_):
+    # Caso o usuário não tenha permissão para acessar a página, ele é direcionado para a página de login
     flash("Acesso negado", category='warning')
     return redirect(url_for('login'))
 
@@ -23,18 +24,21 @@ def error_401(_):
 @app.route('/')
 @login_required
 def home():
+    # Rota principal, dá acesso a homepage
     response = make_response(render_template('./homepage/index.html', title="Homepage - CACAU"))
     return req(response)
 
 @app.route('/get/all/fermentador', methods=['GET','POST'])
 @login_required
 def listAllFermentador():
+    # Retorna uma lista com todos os fermentadores
     all:Fermentador = Fermentador.query.all()
     return all
 
 @app.route('/get/all/ciclo/fermentador/<id_machine>', methods=['GET','POST'])
 @login_required
 def listAllCiclos(id_machine:int):
+    # Retorna um objeto contento os ciclos do fermentador
     result = []
     single:Fermentador = Fermentador.query.filter_by(id=id_machine).first()
     for ciclo in single.ciclos:
@@ -48,6 +52,7 @@ def listAllCiclos(id_machine:int):
 @login_required
 def listAllHistorico(id_ciclo:int, timestamp:int):
 
+    # Retorna todo o historico do ciclo, podendo retornar um periodo de data selecionado.
 
     array_id = []
     array_ciclo = []
@@ -92,6 +97,7 @@ def listAllHistorico(id_ciclo:int, timestamp:int):
 @login_required
 def getRangeHistorico(id_ciclo:int):
 
+    # Retorna o máximo e o mínimo de data do ciclo selecionado
     min = 0
     max = 0
 
@@ -105,7 +111,7 @@ def getRangeHistorico(id_ciclo:int):
 
 @app.route('/auth/logout', methods=['GET','POST'])
 def auth_logout():
-    
+    # Destroi a sessão e faz o logout do usuário
     logout_user();
     session.clear();
 
@@ -113,6 +119,7 @@ def auth_logout():
 
 @app.route('/auth/login', methods=['GET','POST'])
 def auth_login():
+    # Realiza o login do usuário caso válidado.
 
     login = str(request.form['username'])
     pwd = str(request.form['password'])
@@ -147,7 +154,7 @@ def auth_login():
     
 @app.route('/login')
 def login():
-
+    # Página de login, caso o usuário esteja ativo, ele é redirecionado a home.
     if(current_user.is_authenticated): return redirect(url_for('home'))
 
     response = make_response(render_template('./login/index.html', title="Login - CACAU"))

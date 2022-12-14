@@ -2,11 +2,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
+from pathlib import Path
 
 app = Flask(__name__, template_folder='./templates')
+path = Path(__file__).parent.parent
 
-
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///C:/Desenvolvimento/Python_Projects/Companhia_do_Cacau/database.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{path}/database.sqlite'
 
 app.config['SECRET_KEY'] = 'MmM7NWFiYTlmYzdkYThxMDI1NJZiYTMiYjkzYTM0MDcwMGY4OGViNw=='
 

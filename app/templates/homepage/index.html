@@ -215,18 +215,26 @@
 										success: function(data){
 											if(data.length > 0){
 												$('#ciclopicker').attr('disabled',false)
+												$('#datapicker').attr('disabled',false)
+
 												$.each(data, function(index, data){
 													$('#ciclopicker').append('<option value='+data.id+' _clone='+data.clone+' _fermentador='+data.id_fermentador+' _data='+data.data_inicio_formatada+'>'+data.nome_ciclo+'</option>')
 												});
+												
+												$('#datapicker').val('');
+												listarHistorico($('#ciclopicker').val());
+												getRangeDatePicker($('#ciclopicker').val());
+												
 											}else{
+												$('#datapicker').val('');
+
 												$('#ciclopicker').attr('disabled','disabled')
+												$('#datapicker').attr('disabled','disabled')
+												
 												$('#ciclopicker').append("<option selected disabled>Não há ciclo</option>")
 												apagarGrafico()
 											}
 
-											$('#datapicker').val('');
-											listarHistorico($('#ciclopicker').val());
-											getRangeDatePicker($('#ciclopicker').val());
 										},
 									})
 								}
